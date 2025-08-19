@@ -46,13 +46,61 @@ Simply double-click index.html or open it in your favorite browser. (No server r
 
 ---
 
-🧩 How It Works
+## 🗂️ Technology Stack Demonstrations
 
-This game uses requestAnimationFrame for smooth animation, handles keyboard events for paddle movement and detects collisions with paddles and walls.  The ball will be reset when it leaves the screen.
+To show versatility, this project includes multiple versions of the same Pong game implemented in different stacks.
+
+- Node.js + Express
+```
+cd stacks/node-pong
+npm install
+node server.js
+```
+- Open http://localhost:3000 in your browser.
 
 ---
 
-🔧 Extending the Game
+- React
+
+```
+cd stacks/react-pong
+npm install
+npm start
+```
+
+- Open http://localhost:3000.
+
+---
+- PHP
+
+Run with PHP’s built-in server:
+
+```
+cd stacks/php-pong
+php -S localhost:8000
+```
+
+- Open http://localhost:8000.
+
+---
+- Laravel
+
+Make sure you’ve installed dependencies:
+
+```
+cd stacks/laravel-pong
+composer install
+php artisan serve
+```
+
+- Open http://localhost:8000/pong.
+
+## 🧩 How It Works
+
+This game uses requestAnimationFrame for smooth animation, handles keyboard events for paddle movement, and detects collisions with paddles and walls.
+The ball resets when it leaves the screen.
+
+## 🔧 Extending the Game
 
 Want to make it your own? Some easy extensions:
 
@@ -64,6 +112,6 @@ Want to make it your own? Some easy extensions:
 
 ---
 
-📜 License
+### 📜 License
 
 This project is released under the [MIT License](./LICENSE).
