@@ -64,4 +64,4 @@ Want to make it your own? Some easy extensions:
 
 📜 License
 
-This project is released under the MIT License.
+This project is released under the [MIT License](./LICENSE).
