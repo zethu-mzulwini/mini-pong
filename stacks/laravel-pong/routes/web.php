@@ -1,4 +1,8 @@
-Route::get('/pong', function () {
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
     return view('pong');
 });
 Route::get('/pong/{player}', function ($player) {

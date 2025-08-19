@@ -60,7 +60,7 @@ node server.js
 
 ---
 
-- React
+- Vite + React
 
 ```
 cd stacks/react-pong
