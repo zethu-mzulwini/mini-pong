@@ -12,11 +12,13 @@ Perfect for learning canvas basics or extending into your own game! 🚀
 
 ```
 /mini-pong/
-├── index.html # Main HTML file, sets up canvas
+├── index.html    # Main HTML file, sets up canvas
 ├── css/
-│ └── styles.css # Page & canvas styling
+  └── styles.css  # Page & canvas styling
 └── js/
-└── game.js # Core game logic (animation, input, collisions)
+  └── game.js     # Core game logic (animation, input, collisions)
+├── LICENSE
+├── README.md     # This file
 ```
 
 ---

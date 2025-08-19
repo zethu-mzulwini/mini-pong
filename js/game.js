@@ -22,7 +22,7 @@ function drawPaddle(x, y) {
 }
 
 function drawBall() {
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = "hotpink";
   ctx.beginPath();
   ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2);
   ctx.fill();
