@@ -396,46 +396,6 @@ if (themeSelect) {
 applyTheme('dark');
 if (aiToggle) aiToggle.checked = false;
 
-// --- DEBUG: show player name inputs ---
-(function showPlayerInputs(){
-  const existing = document.getElementById('playerInputs');
-  if (existing) { existing.remove(); console.log('Removed existing player input div'); }
-  const div = document.createElement('div');
-  div.id = 'playerInputs';
-  div.style.position = 'absolute';
-  div.style.left = '50%';
-  div.style.top = '10px';
-  div.style.transform = 'translateX(-50%)';
-  div.style.zIndex = '100';
-  div.innerHTML = `
-    <div style="margin-bottom:4px">
-      <input id="debugPlayer1" placeholder="Player 1 name" style="padding:8px;width:120px;font-size:16px">
-      <input id="debugPlayer2" placeholder="Player 2 name" style="padding:8px;width:120px;font-size:16px">
-    </div>
-    <button id="setNames" style="padding:8px 12px;font-size:16px">Set Names</button>
-  `;
-  document.body.appendChild(div);
-
-  const p1n = document.getElementById('debugPlayer1');
-  const p2n = document.getElementById('debugPlayer2');
-  const btnSet = document.getElementById('setNames');
-  if (p1n && p2n && btnSet) {
-    btnSet.addEventListener('click', ()=>{
-      const p1 = p1n.value && p1n.value.trim().length > 0 ? p1n.value.trim() : 'Player 1';
-      const p2 = p2n.value && p2n.value.trim().length > 0 ? p2n.value.trim() : 'Player 2';
-      // update scores UI
-      leftScoreEl.querySelector('.label').textContent = p1 + ':';
-      rightScoreEl.querySelector('.label').textContent = p2 + ':';
-      // remove inputs
-      div.remove();
-      // restore any removed player name labels (in case this was a re-show)
-      const lbls = document.querySelectorAll('label.control-row');
-      lbls.forEach(l => {
-        if (l.textContent && (l.textContent.includes('Player 1') || l.textContent.includes('Player 2'))) {
-          if (l.parentNode) l.parentNode.removeChild(l);
-        }
-      });
-    });
-  }
-})();
+// Removed debug player-name input injection (was creating #playerInputs and Set Names button)
+// (Previously an IIFE created temporary inputs for player names; removed per user request)
 });
