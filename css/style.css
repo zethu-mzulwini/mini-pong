@@ -39,6 +39,16 @@ body.theme-galaxy {
   --canvas-border: #9b7bff;
 }
 
+/* Make page non-scrollable and use consistent box-sizing */
+html, body {
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden; /* disable vertical page scrolling */
+}
+
+/* ensure all elements use inherited box-sizing */
+*, *::before, *::after { box-sizing: inherit; }
+
 /* apply variables & base layout (consolidated; removes duplicated rules) */
 body {
   background: var(--bg);
@@ -50,7 +60,8 @@ body {
   font-family: Arial, sans-serif;
   height: 100vh;
   margin: 0;
-  padding-top: 20px;
+  padding-top: 12px; /* reduced to help fit into viewport */
+  overflow: hidden; /* ensure no body scroll */
 }
 
 h1 {
@@ -69,15 +80,20 @@ canvas {
   background: var(--bg);
   margin: 8px auto;
   display: block;
+  width: auto;
   max-width: calc(100% - 260px); /* leave space for left controls */
+  max-height: calc(100vh - 160px); /* keep canvas within viewport height */
+  height: auto;
+  object-fit: contain;
 }
 
 /* compact and DRY button rules */
 .top-buttons {
   display: flex;
-  gap: 100px;
+  gap: 18px;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .top-buttons button {
@@ -112,17 +128,20 @@ canvas {
 
 #controls {
   position: absolute;
-  top: 250px; /* move further down */
-  left: 25px; /* moved from right to left */
+  top: 96px; /* move higher so everything fits */
+  left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  align-items: flex-start; /* align to left side */
+  gap: 8px;
+  align-items: flex-start;
+  max-height: calc(100vh - 120px); /* ensure controls fit within viewport */
+  overflow: auto; /* allow internal scroll for controls only */
+  padding-right: 6px;
 }
 
 #controls .panel {
   background: rgba(255, 255, 255, 0.03);
-  padding: 10px;
+  padding: 8px;
   border-radius: 8px;
   margin-bottom: 10px;
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -168,13 +187,13 @@ canvas {
 
 .scoreboard {
   position: absolute;
-  top: 8px;
+  top: 6px;
   left: 8px;
   right: 8px;
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   z-index: 10;
   align-items: center;

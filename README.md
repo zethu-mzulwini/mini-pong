@@ -1,6 +1,6 @@
-# 🎮 Mini Pong Game (HTML5 Canvas)
+# 🎮 Mini Pong (HTML5 Canvas)
 
-A simple **Pong clone** built with **HTML5 `<canvas>`**, vanilla JavaScript, and CSS.  
+A small Pong clone built with HTML5 Canvas, vanilla JavaScript and CSS. Lightweight and easy to extend — intended as a learning/example project.
 
 This project demonstrates **animation loops, event handling, and collision detection** without any external libraries.  
 
@@ -23,13 +23,31 @@ Perfect for learning canvas basics or extending into your own game! 🚀
 
 ---
 
-## 🕹️ Controls
-- **Player 1 (Left Paddle)**:  
-  - `W` = Move Up  
-  - `S` = Move Down  
-- **Player 2 (Right Paddle)**:  
-  - `↑` (Arrow Up) = Move Up  
-  - `↓` (Arrow Down) = Move Down  
+## New features & extensions (added)
+- Start button now shows a 3 → 0 countdown before the game begins.
+- Stop button pauses the game (preserves ball/paddle positions and scores).
+- Quit button stops the game and fully resets state (scores, positions, centered ball).
+- When the target score is reached the game shows a "Congratulations" popup.
+  - Popup includes a fireworks-style visual celebration (trail + burst particles).
+  - Popup includes a "Try Again" button which clears effects and restarts.
+- Appearance controls:
+  - Ball color & shape (circle / square)
+  - Paddle color & paddle size
+  - Ball size
+  - Theme selector (Dark / Neon / Retro / Galaxy) using CSS variables
+- AI opponent with difficulty selector (Easy / Hard). Toggleable.
+- Touch support: drag on left/right half of canvas to move paddles on mobile.
+- Sound effects for paddle/wall/cheer (loaded on user gesture).
+- Responsive layout and consolidated CSS variables for easier theming and DRY rules.
+- Defensive DOM fallbacks and robust event wiring to avoid runtime errors.
+
+## Controls
+- Player 1 (left): `W` (up), `S` (down)
+- Player 2 (right): Arrow `↑` / `↓` (or toggle AI)
+- Start: begins a 3→0 countdown, then starts the game
+- Stop: pauses the game
+- Quit: resets the game and centers the ball
+- Try Again (in popup): resets scores and restarts with countdown
 
 ---
 
