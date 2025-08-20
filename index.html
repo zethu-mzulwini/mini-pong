@@ -11,8 +11,9 @@
 
   <!-- top-centered Start/Stop buttons styled as scoreboard-like boxes -->
   <div class="top-buttons">
-    <button id="startBtn" class="start">Start</button>
-    <button id="stopBtn" class="stop">Stop</button>
+    <button id="startBtn" class="start" type="button">Start</button>
+    <button id="stopBtn" class="stop" type="button">Stop</button>
+    <button id="quitBtn" class="quit" type="button">Quit</button>
   </div>
 
   <!-- Controls panel on the right, grouped into sections -->
@@ -51,6 +52,6 @@
   </aside>
 
   <canvas id="gameCanvas" width="800" height="500"></canvas>
-  <script src="./js/game.js"></script>
+  <script src="./js/game.js" defer></script>
 </body>
 </html>

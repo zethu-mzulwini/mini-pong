@@ -5,6 +5,11 @@
   --accent: hotpink;
   --panel-bg: rgba(255,255,255,0.03);
   --canvas-border: hotpink;
+
+  /* optional button color fallbacks used by controls */
+  --btn-bg: rgba(255,255,255,0.03);
+  --btn-fg: #111;
+  --btn-border: rgba(128,128,128,0.2);
 }
 
 /* Neon Glow */
@@ -34,21 +39,14 @@ body.theme-galaxy {
   --canvas-border: #9b7bff;
 }
 
-/* apply variables */
-body { background: var(--bg); color: var(--fg); }
-.canvas-wrapper, canvas { background: var(--bg); }
-canvas { border: 3px solid var(--canvas-border); }
-#controls .panel { background: var(--panel-bg); }
-h1 { color: var(--accent); }
-
-/* Replace previous hard-coded body/h1/canvas rules to avoid overriding themes */
-
+/* apply variables & base layout (consolidated; removes duplicated rules) */
 body {
+  background: var(--bg);
+  color: var(--fg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  /* background and color are set via variables above */
   font-family: Arial, sans-serif;
   height: 100vh;
   margin: 0;
@@ -58,10 +56,14 @@ body {
 h1 {
   margin-bottom: 25px;
   text-align: center;
-  /* color set via variable above */
+  color: var(--accent);
 }
 
 /* ensure canvas uses variable border/background (keeps responsive sizing) */
+.canvas-wrapper, canvas {
+  background: var(--bg);
+}
+
 canvas {
   border: 3px solid var(--canvas-border);
   background: var(--bg);
@@ -70,6 +72,7 @@ canvas {
   max-width: calc(100% - 260px); /* leave space for left controls */
 }
 
+/* compact and DRY button rules */
 .top-buttons {
   display: flex;
   gap: 100px;
@@ -78,9 +81,9 @@ canvas {
 }
 
 .top-buttons button {
-  background: hotpink;
-  color: #111;
-  border: rgb(128, 128, 128) 2px solid;
+  background: var(--btn-bg);
+  color: var(--fg);
+  border: var(--btn-border) 2px solid;
   padding: 10px 16px;
   cursor: pointer;
   font-weight: bold;
@@ -88,6 +91,7 @@ canvas {
   font-size: 18px;
 }
 
+/* specific overrides (keep visual affordances) */
 .top-buttons button.start {
   background: #00c853;
   color: white;

@@ -61,6 +61,11 @@ let rightScore = 0;
 let targetScore = parseInt(targetScoreInput.value, 10) || 5;
 let gameOver = false;
 
+// add paused + countdown state
+let paused = false;
+let countdownTimer = null;
+let countdownOverlay = null;
+
 // --- Remove player-name UI (if any was dynamically injected earlier) ---
 (function removePlayerInputs(){
   const p1 = document.getElementById('player1Name');
@@ -220,47 +225,213 @@ canvas.addEventListener('touchmove', (e)=>{
 });
 canvas.addEventListener('touchend', (e)=>{ activeTouch=null; e.preventDefault(); });
 
-// Robust Start/Stop handlers (improve: start via requestAnimationFrame and add defensive checks)
-function startGame() {
-  console.debug('startGame called — running=', running);
-  try { initSounds(); } catch(e) { /* ignore */ }
-  if (running) return;
-  // ensure canvas/context exist
-  if (!canvas || !ctx) { console.error('Canvas or context missing'); return; }
+// Replace Robust Start/Stop handlers with countdown-aware start + pause behavior
+function showCountdown(startSeconds = 3, onComplete) {
+  // cleanup any existing
+  if (countdownOverlay) countdownOverlay.remove();
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
 
-  running = true;
-  // give UI feedback
-  const btnStart = document.getElementById('startBtn');
-  const btnStop = document.getElementById('stopBtn');
-  if (btnStart) { btnStart.disabled = true; btnStart.textContent = 'Running'; btnStart.classList.add('active'); }
-  if (btnStop) { btnStop.disabled = false; }
+  countdownOverlay = document.createElement('div');
+  countdownOverlay.id = 'countdownOverlay';
+  countdownOverlay.style.position = 'absolute';
+  countdownOverlay.style.top = '0';
+  countdownOverlay.style.left = '0';
+  countdownOverlay.style.width = '100%';
+  countdownOverlay.style.height = '100%';
+  countdownOverlay.style.display = 'flex';
+  countdownOverlay.style.alignItems = 'center';
+  countdownOverlay.style.justifyContent = 'center';
+  countdownOverlay.style.zIndex = '100';
+  countdownOverlay.style.pointerEvents = 'none';
+  countdownOverlay.style.color = 'white';
+  countdownOverlay.style.fontSize = '120px';
+  countdownOverlay.style.fontWeight = '700';
+  countdownOverlay.style.textAlign = 'center';
+  countdownOverlay.style.background = 'rgba(0,0,0,0.25)';
 
-  // reset positions/scores optionally
-  leftPaddleY = (canvas.height - paddleHeight) / 2;
-  rightPaddleY = (canvas.height - paddleHeight) / 2;
-  ballX = canvas.width / 2;
-  ballY = canvas.height / 2;
-  ballSpeedX = baseSpeed * (Math.random() > 0.5 ? 1 : -1);
-  ballSpeedY = baseSpeed * (Math.random() > 0.5 ? 1 : -1);
+  document.body.appendChild(countdownOverlay);
 
-  // start loop via RAF to avoid blocking
-  try {
-    if (animationId) cancelAnimationFrame(animationId);
-    animationId = requestAnimationFrame(gameLoop);
-  } catch (err) { console.error('gameLoop start failed', err); running = false; }
+  let remaining = startSeconds;
+  countdownOverlay.textContent = remaining > 0 ? remaining : 'Go';
+  countdownTimer = setInterval(() => {
+    remaining--;
+    if (remaining > 0) countdownOverlay.textContent = remaining;
+    else {
+      countdownOverlay.textContent = 'Go';
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      setTimeout(() => {
+        if (countdownOverlay) countdownOverlay.remove();
+        countdownOverlay = null;
+        if (typeof onComplete === 'function') onComplete();
+      }, 300);
+    }
+  }, 1000);
 }
+
+function startGame() {
+  try { initSounds(); } catch(e) { /* ignore */ }
+  if (running) return; // already running
+
+  // start with countdown then begin RAF loop
+  // if paused, we still show countdown to resume
+  showCountdown(3, () => {
+    running = true;
+    paused = false;
+
+    const btnStart = document.getElementById('startBtn');
+    const btnStop = document.getElementById('stopBtn');
+    if (btnStart) { btnStart.disabled = true; btnStart.textContent = 'Running'; btnStart.classList.add('active'); }
+    if (btnStop) { btnStop.disabled = false; }
+
+    // ensure positions are reasonable on first start or after quit
+    if (typeof leftPaddleY === 'undefined' || typeof rightPaddleY === 'undefined') {
+      leftPaddleY = (canvas.height - paddleHeight) / 2;
+      rightPaddleY = (canvas.height - paddleHeight) / 2;
+    }
+    ballX = canvas.width / 2;
+    ballY = canvas.height / 2;
+    ballSpeedX = baseSpeed * (Math.random() > 0.5 ? 1 : -1);
+    ballSpeedY = baseSpeed * (Math.random() > 0.5 ? 1 : -1);
+
+    try {
+      if (animationId) cancelAnimationFrame(animationId);
+      animationId = requestAnimationFrame(gameLoop);
+    } catch (err) { console.error('gameLoop start failed', err); running = false; }
+  });
+}
+
 function stopGame() {
-  console.debug('stopGame called');
+  // pause the game (preserve positions/scores)
+  paused = true;
   running = false;
   if (animationId) cancelAnimationFrame(animationId);
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  if (countdownOverlay) { countdownOverlay.remove(); countdownOverlay = null; }
+
   const btnStart = document.getElementById('startBtn');
   const btnStop = document.getElementById('stopBtn');
   if (btnStart) { btnStart.disabled = false; btnStart.textContent = 'Start'; btnStart.classList.remove('active'); }
-  if (btnStop) { btnStop.disabled = false; }
+  if (btnStop) { btnStop.disabled = true; }
 }
-// expose for debugging
-window.startGame = startGame;
-window.stopGame = stopGame;
+
+// Quit: stop and fully reset game state/UI
+function quitGame() {
+  try { stopGame(); } catch (e) {}
+  // reset scores
+  leftScore = 0; rightScore = 0;
+  try { leftScoreEl.querySelector('.value').textContent = leftScore; } catch(e){}
+  try { rightScoreEl.querySelector('.value').textContent = rightScore; } catch(e){}
+
+  // reset positions and ball
+  paddleHeight = parseInt(paddleSizeInput.value, 10) || paddleHeight;
+  ballSize = parseInt(ballSizeInput.value, 10) || ballSize;
+  leftPaddleY = (canvas.height - paddleHeight) / 2;
+  rightPaddleY = (canvas.height - paddleHeight) / 2;
+  ballX = canvas.width / 2; ballY = canvas.height / 2;
+  ballSpeedX = 0; ballSpeedY = 0;
+
+  // remove overlays (gameOver or countdown)
+  const go = document.getElementById('gameOverOverlay');
+  if (go) go.remove();
+  if (countdownOverlay) { countdownOverlay.remove(); countdownOverlay = null; }
+  gameOver = false;
+  paused = false;
+  // ensure UI buttons
+  const btnStart = document.getElementById('startBtn');
+  const btnStop = document.getElementById('stopBtn');
+  if (btnStart) { btnStart.disabled = false; btnStart.textContent = 'Start'; btnStart.classList.remove('active'); }
+  if (btnStop) { btnStop.disabled = true; }
+}
+
+// wire up Start/Stop/Quit safely (keep existing priming listener intact)
+if (typeof startBtn !== 'undefined' && startBtn && typeof startBtn.addEventListener === 'function') {
+  startBtn.addEventListener('click', (e) => {
+    try { startGame(); } catch (err) { console.error('startBtn handler error', err); }
+  });
+}
+if (typeof stopBtn !== 'undefined' && stopBtn && typeof stopBtn.addEventListener === 'function') {
+  stopBtn.addEventListener('click', (e) => {
+    try { stopGame(); } catch (err) { console.error('stopBtn handler error', err); }
+  });
+  try { stopBtn.disabled = true; } catch(e){}
+}
+const quitBtn = document.getElementById('quitBtn');
+if (quitBtn) {
+  quitBtn.addEventListener('click', (e) => {
+    try { quitGame(); } catch (err) { console.error('quitBtn handler error', err); }
+  });
+}
+
+// Add concrete moveBall() and draw() implementations so RAF loop actually runs
+function moveBall() {
+  // update position
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
+
+  // top/bottom wall collisions
+  if (ballY - ballSize <= 0) {
+    ballY = ballSize;
+    ballSpeedY = -ballSpeedY;
+    try{ playSound('wall'); }catch(e){}
+  } else if (ballY + ballSize >= canvas.height) {
+    ballY = canvas.height - ballSize;
+    ballSpeedY = -ballSpeedY;
+    try{ playSound('wall'); }catch(e){}
+  }
+
+  // left paddle collision or left miss
+  if (ballX - ballSize <= paddleWidth) {
+    if (ballY >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
+      // bounce
+      ballX = paddleWidth + ballSize;
+      ballSpeedX = -ballSpeedX;
+      const delta = ballY - (leftPaddleY + paddleHeight / 2);
+      ballSpeedY += delta * 0.05;
+      try{ playSound('paddle'); }catch(e){}
+    } else {
+      // right scores
+      rightScore++;
+      try { rightScoreEl.querySelector('.value').textContent = rightScore; } catch(e){}
+      resetAfterPoint('right');
+    }
+  }
+
+  // right paddle collision or right miss
+  if (ballX + ballSize >= canvas.width - paddleWidth) {
+    if (ballY >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
+      ballX = canvas.width - paddleWidth - ballSize;
+      ballSpeedX = -ballSpeedX;
+      const delta = ballY - (rightPaddleY + paddleHeight / 2);
+      ballSpeedY += delta * 0.05;
+      try{ playSound('paddle'); }catch(e){}
+    } else {
+      // left scores
+      leftScore++;
+      try { leftScoreEl.querySelector('.value').textContent = leftScore; } catch(e){}
+      resetAfterPoint('left');
+    }
+  }
+}
+
+function draw() {
+  // clear
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // center dashed line
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.setLineDash([6,6]);
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, 0);
+  ctx.lineTo(canvas.width / 2, canvas.height);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // paddles and ball
+  drawPaddle(0, leftPaddleY);
+  drawPaddle(canvas.width - paddleWidth, rightPaddleY);
+  drawBall();
+}
 
 // gameLoop with debug logs
 function gameLoop(timestamp) {
@@ -318,7 +489,7 @@ function showGameOver(winner) {
     box.innerHTML = `<h2>Congratulations!</h2><p style="font-size:18px;margin:10px 0">${winner} wins!</p>`;
 
     const btn = document.createElement('button');
-    btn.textContent = 'Play Again';
+    btn.textContent = 'Try Again';
     btn.style.marginTop = '12px';
     btn.style.padding = '10px 16px';
     btn.style.fontSize = '16px';
