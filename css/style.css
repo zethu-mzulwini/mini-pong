@@ -238,6 +238,50 @@ canvas {
   }
 }
 
+/* Fireworks styles */
+.firework {
+  position: absolute;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  pointer-events: none;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+  transform-origin: center bottom;
+  z-index: 60;
+}
+
+.firework::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-20%);
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  opacity: 0.15;
+  background: currentColor;
+}
+
+/* small bright particle that bursts outward */
+.firework-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 61;
+  box-shadow: 0 0 8px currentColor, 0 0 18px rgba(255,255,255,0.1);
+}
+
+/* fallback CSS animation for very old UAs (kept subtle) */
+@keyframes fw-fallback {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-120px) scale(0.8); opacity: 0; }
+}
+
 @media (max-width: 900px) {
   canvas {
     width: 95%;

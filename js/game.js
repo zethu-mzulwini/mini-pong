@@ -534,30 +534,70 @@ function showGameOver(winner) {
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
-    // spawn sparkles across the canvas area
+    // spawn fireworks across the canvas area (trail -> burst particles)
     const rect = canvas.getBoundingClientRect();
-    const sparkleCount = 24;
-    for (let i=0;i<sparkleCount;i++){
-      const s = document.createElement('div');
-      s.className = 'sparkle';
-      // randomize position over canvas
-      const left = rect.left + Math.random() * rect.width;
-      const top = rect.top + Math.random() * rect.height;
-      s.style.left = `${left}px`;
-      s.style.top = `${top}px`;
-      // randomize size and duration
-      const size = 6 + Math.floor(Math.random() * 10);
-      s.style.width = `${size}px`;
-      s.style.height = `${size}px`;
-      s.style.borderRadius = '50%';
-      s.style.animationDuration = `${0.8 + Math.random() * 1.2}s`;
-      s.style.opacity = String(0.6 + Math.random() * 0.4);
-      // append to body so absolute coords line up with viewport
-      document.body.appendChild(s);
-      // remove individual sparkle after its animation finishes
-      (function(el){
-        setTimeout(()=>{ try{ el.remove(); }catch(e){} }, 1800 + Math.random()*1200);
-      })(s);
+    const launches = 6;
+    const colors = ['#ffec5c','#ff6b6b','#ffd08a','#9b7bff','#39ff14','#ff69b4'];
+    for (let i = 0; i < launches; i++) {
+      (function(){
+        const launchX = rect.left + rect.width * (0.15 + Math.random() * 0.7);
+        const launchY = rect.top + rect.height * (0.8 + Math.random() * 0.12); // slightly below top of canvas area
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        // create launch trail element
+        const trail = document.createElement('div');
+        trail.className = 'firework';
+        trail.style.left = `${launchX}px`;
+        trail.style.top = `${launchY}px`;
+        trail.style.color = color; // currentColor used by CSS
+        document.body.appendChild(trail);
+
+        // animate trail upward
+        const rise = rect.height * (0.35 + Math.random() * 0.25); // how high it rises
+        const riseDuration = 700 + Math.random() * 300;
+        const riseAnim = trail.animate([
+          { transform: 'translateY(0)', opacity: 1 },
+          { transform: `translateY(-${rise}px)`, opacity: 0.95 }
+        ], { duration: riseDuration, easing: 'cubic-bezier(.2,.8,.2,1)' });
+
+        // when trail reaches top, burst into particles
+        riseAnim.onfinish = () => {
+          try { trail.remove(); } catch(e){}
+          const burstCount = 16 + Math.floor(Math.random() * 16);
+          const burstX = launchX;
+          const burstY = launchY - rise;
+          for (let p = 0; p < burstCount; p++) {
+            const part = document.createElement('div');
+            part.className = 'firework-particle';
+            // randomize particle color variant
+            const c = colors[Math.floor(Math.random() * colors.length)];
+            part.style.background = c;
+            part.style.left = `${burstX}px`;
+            part.style.top = `${burstY}px`;
+            document.body.appendChild(part);
+
+            // compute random direction & distance
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 60 + Math.random() * 140;
+            const dx = Math.cos(angle) * distance;
+            const dy = Math.sin(angle) * distance;
+            const dur = 800 + Math.random() * 700;
+
+            // animate particle outward and fade
+            const anim = part.animate([
+              { transform: 'translate(0,0) scale(1)', opacity: 1 },
+              { transform: `translate(${dx}px, ${dy}px) scale(0.6)`, opacity: 0 }
+            ], { duration: dur, easing: 'cubic-bezier(.2,.6,.2,1)' });
+
+            // cleanup after animation
+            anim.onfinish = (() => {
+              try { part.remove(); } catch(e){}
+            });
+          }
+        };
+        // ensure trail removed after safety timeout
+        setTimeout(()=>{ try{ trail.remove(); }catch(e){} }, riseDuration + 1200);
+      })();
     }
 
     // play a cheer if available
