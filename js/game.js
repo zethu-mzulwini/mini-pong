@@ -273,6 +273,14 @@ function startGame() {
   try { initSounds(); } catch(e) { /* ignore */ }
   if (running) return; // already running
 
+  // Ensure ball and paddles are centered and stationary while countdown runs
+  ballX = canvas.width / 2;
+  ballY = canvas.height / 2;
+  ballSpeedX = 0;
+  ballSpeedY = 0;
+  leftPaddleY = (canvas.height - paddleHeight) / 2;
+  rightPaddleY = (canvas.height - paddleHeight) / 2;
+
   // start with countdown then begin RAF loop
   // if paused, we still show countdown to resume
   showCountdown(3, () => {
@@ -289,6 +297,7 @@ function startGame() {
       leftPaddleY = (canvas.height - paddleHeight) / 2;
       rightPaddleY = (canvas.height - paddleHeight) / 2;
     }
+    // randomize initial motion only after countdown
     ballX = canvas.width / 2;
     ballY = canvas.height / 2;
     ballSpeedX = baseSpeed * (Math.random() > 0.5 ? 1 : -1);
@@ -323,21 +332,35 @@ function quitGame() {
   try { leftScoreEl.querySelector('.value').textContent = leftScore; } catch(e){}
   try { rightScoreEl.querySelector('.value').textContent = rightScore; } catch(e){}
 
-  // reset positions and ball
+  // reset sizes from UI
   paddleHeight = parseInt(paddleSizeInput.value, 10) || paddleHeight;
   ballSize = parseInt(ballSizeInput.value, 10) || ballSize;
+
+  // center paddles and ball, stop motion
   leftPaddleY = (canvas.height - paddleHeight) / 2;
   rightPaddleY = (canvas.height - paddleHeight) / 2;
-  ballX = canvas.width / 2; ballY = canvas.height / 2;
-  ballSpeedX = 0; ballSpeedY = 0;
+  ballX = Math.floor(canvas.width / 2);
+  ballY = Math.floor(canvas.height / 2);
+  ballSpeedX = 0;
+  ballSpeedY = 0;
 
-  // remove overlays (gameOver or countdown)
+  // ensure RAF cancelled
+  try { if (animationId) cancelAnimationFrame(animationId); } catch(e){}
+  animationId = null;
+
+  // remove overlays and sparkles
   const go = document.getElementById('gameOverOverlay');
   if (go) go.remove();
   if (countdownOverlay) { countdownOverlay.remove(); countdownOverlay = null; }
+  document.querySelectorAll('.sparkle').forEach(s => { try { s.remove(); } catch(e){} });
+
   gameOver = false;
   paused = false;
-  // ensure UI buttons
+
+  // clear canvas and draw centered state so user sees the reset immediately
+  try { ctx.clearRect(0,0,canvas.width,canvas.height); draw(); } catch(e){}
+
+  // ensure UI buttons reflect stopped/reset state
   const btnStart = document.getElementById('startBtn');
   const btnStop = document.getElementById('stopBtn');
   if (btnStart) { btnStart.disabled = false; btnStart.textContent = 'Start'; btnStart.classList.remove('active'); }
@@ -499,8 +522,9 @@ function showGameOver(winner) {
       leftScore = 0; rightScore = 0;
       try { leftScoreEl.querySelector('.value').textContent = leftScore; } catch(e){}
       try { rightScoreEl.querySelector('.value').textContent = rightScore; } catch(e){}
-      // remove overlay and any sparkles
+      // remove overlay and any sparkles immediately
       const o = document.getElementById('gameOverOverlay'); if (o) o.remove();
+      document.querySelectorAll('.sparkle').forEach(s => { try { s.remove(); } catch(e){} });
       // clear gameOver flag and restart
       gameOver = false;
       startGame();
