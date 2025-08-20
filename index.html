@@ -8,6 +8,48 @@
 </head>
 <body>
   <h1>Mini Pong</h1>
+
+  <!-- top-centered Start/Stop buttons styled as scoreboard-like boxes -->
+  <div class="top-buttons">
+    <button id="startBtn" class="start">Start</button>
+    <button id="stopBtn" class="stop">Stop</button>
+  </div>
+
+  <!-- Controls panel on the right, grouped into sections -->
+  <aside id="controls" aria-label="Game Controls">
+    <div class="panel game"> <!-- added class 'game' -->
+      <h3>Game Settings</h3>
+      <div class="control-grid">
+        <label class="control-row">Target Score: <input type="number" id="targetScore" min="1" max="20" value="5"></label>
+        <label class="control-row">AI Opponent: <input type="checkbox" id="aiToggle" checked></label>
+        <label class="control-row">Ball Shape:
+          <select id="ballShape">
+            <option value="circle">Circle</option>
+            <option value="square">Square</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel appearance"> <!-- added class 'appearance' -->
+      <h3>Appearance</h3>
+      <div class="control-grid">
+        <label class="control-row">Ball Color: <input type="color" id="ballColor" value="#ff69b4"></label>
+        <label class="control-row">Paddle Color: <input type="color" id="paddleColor" value="#ffffff"></label>
+        <label class="control-row">Paddle Size: <input type="range" id="paddleSize" min="40" max="200" value="100"></label>
+        <label class="control-row">Ball Size: <input type="range" id="ballSize" min="4" max="30" value="10"></label>
+        <label class="control-row">Theme:
+          <select id="themeSelect">
+            <option value="dark">Dark Mode</option>
+            <option value="neon">Neon Glow</option>
+            <option value="retro">Retro 8-bit</option>
+            <option value="galaxy">Galaxy</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </aside>
+
   <canvas id="gameCanvas" width="800" height="500"></canvas>
   <script src="./js/game.js"></script>
 </body>

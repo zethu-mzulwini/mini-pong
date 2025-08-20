@@ -1,20 +1,253 @@
+/* Theme variables (defaults = Dark) */
+:root {
+  --bg: #111;
+  --fg: #fff;
+  --accent: hotpink;
+  --panel-bg: rgba(255,255,255,0.03);
+  --canvas-border: hotpink;
+}
+
+/* Neon Glow */
+body.theme-neon {
+  --bg: #050007;
+  --fg: #f6f0ff;
+  --accent: #39ff14;
+  --panel-bg: rgba(57,255,20,0.03);
+  --canvas-border: #39ff14;
+}
+
+/* Retro 8-bit */
+body.theme-retro {
+  --bg: #2b2b2b;
+  --fg: #d3c48c;
+  --accent: #ffcc00;
+  --panel-bg: rgba(211,196,140,0.03);
+  --canvas-border: #ffcc00;
+}
+
+/* Galaxy */
+body.theme-galaxy {
+  --bg: linear-gradient(180deg, #08121f 0%, #0b0b2b 100%);
+  --fg: #e6f7ff;
+  --accent: #9b7bff;
+  --panel-bg: rgba(155,123,255,0.03);
+  --canvas-border: #9b7bff;
+}
+
+/* apply variables */
+body { background: var(--bg); color: var(--fg); }
+.canvas-wrapper, canvas { background: var(--bg); }
+canvas { border: 3px solid var(--canvas-border); }
+#controls .panel { background: var(--panel-bg); }
+h1 { color: var(--accent); }
+
+/* Replace previous hard-coded body/h1/canvas rules to avoid overriding themes */
+
 body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: #111;
-  color: white;
+  justify-content: flex-start;
+  /* background and color are set via variables above */
   font-family: Arial, sans-serif;
   height: 100vh;
   margin: 0;
+  padding-top: 20px;
 }
 
 h1 {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  text-align: center;
+  /* color set via variable above */
 }
 
+/* ensure canvas uses variable border/background (keeps responsive sizing) */
 canvas {
-  border: 3px solid hotpink;
-  background: #111; 
+  border: 3px solid var(--canvas-border);
+  background: var(--bg);
+  margin: 8px auto;
+  display: block;
+  max-width: calc(100% - 260px); /* leave space for left controls */
 }
+
+.top-buttons {
+  display: flex;
+  gap: 100px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.top-buttons button {
+  background: hotpink;
+  color: #111;
+  border: rgb(128, 128, 128) 2px solid;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 6px;
+  font-size: 18px;
+}
+
+.top-buttons button.start {
+  background: #00c853;
+  color: white;
+  border: 3px solid #00ff6a;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+.top-buttons button.stop {
+  background: #d50000;
+  color: white;
+  border: 3px solid #ff3b3b;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+#controls {
+  position: absolute;
+  top: 250px; /* move further down */
+  left: 25px; /* moved from right to left */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start; /* align to left side */
+}
+
+#controls .panel {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+#controls .panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #ddd;
+}
+
+#controls .panel.game h3 { color: hotpink; }
+#controls .panel.appearance h3 { color: #00e5ff; }
+
+#controls .control-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+#controls .control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+#controls input[type='number'] {
+  width: 64px;
+}
+
+#controls input[type='range'] {
+  width: 110px;
+}
+
+#controls input[type='color'] {
+  width: 36px;
+  height: 22px;
+  padding: 0;
+  border: none;
+}
+
+.scoreboard {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 10;
+  align-items: center;
+}
+
+.score {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.score .label {
+  color: #ddd;
+  margin-right: 8px;
+}
+
+.game-over-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+  flex-direction: column;
+  color: rgb(252, 6, 178);
+}
+
+.game-over-box {
+  background: rgba(206, 192, 192, 0.06);
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle at 40% 30%, #fff, rgba(255, 255, 255, 0.2));
+  border-radius: 50%;
+  opacity: 0.9;
+  animation: sparkle 1s linear infinite;
+}
+
+@keyframes sparkle {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-30px) scale(1.2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-80px) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  canvas {
+    width: 95%;
+    height: auto;
+  }
+  #controls {
+    flex-direction: column;
+    gap: 8px;
+    position: static;
+    width: auto;
+    margin: 8px;
+  }
+  .top-buttons {
+    margin-bottom: 6px;
+  }
+}
+
